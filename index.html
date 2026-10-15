@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#07111f">
+<title>AR 3D Measurement Lab</title>
+<style>
+:root{--bg:#07111f;--panel:#0c1b2b;--panel2:#102438;--line:#203b52;--text:#e9f4ff;--muted:#9bb2c8;--blue:#39b7ff;--green:#4ce68a;--red:#ff6868;--gold:#ffc45c}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#122c45 0,transparent 42%),var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#07111fee;backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:center;gap:14px;justify-content:space-between}
+.brand{display:flex;gap:12px;align-items:center}.logo{width:42px;height:42px;border:2px solid var(--blue);border-radius:12px;display:grid;place-items:center;font-size:24px;color:var(--blue)}h1{font-size:20px;margin:0}header p{margin:2px 0 0;color:var(--muted);font-size:12px}.status{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}.dot{width:10px;height:10px;border-radius:50%;background:#6b8194}.dot.on{background:var(--green);box-shadow:0 0 12px #4ce68a77}
+main{max-width:1500px;margin:auto;padding:16px;display:grid;grid-template-columns:minmax(0,1.18fr) minmax(360px,0.88fr);gap:16px}.panel{background:linear-gradient(145deg,#0c1b2bf7,#091624);border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0;box-shadow:0 8px 28px #0002}.panel h2{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px}.muted{color:var(--muted)}.camera{position:relative;aspect-ratio:4/3;overflow:hidden;background:#02070d;border:1px solid #28445b;border-radius:12px;display:grid;place-items:center}.camera canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}.placeholder{max-width:440px;text-align:center;padding:24px;color:var(--muted)}.placeholder .big{font-size:46px;color:var(--blue)}.overlay{position:absolute;left:10px;top:10px;z-index:2;background:#06101dcc;border:1px solid #28445b;border-radius:9px;padding:8px 10px;font-size:12px}.overlay.right{left:auto;right:10px}.bottomhint{position:absolute;bottom:10px;left:10px;right:10px;text-align:center;color:#d7e8f8;background:#06101dcc;padding:7px;border-radius:8px;font-size:11px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.btn{border:1px solid #31516b;background:#102438;color:var(--text);border-radius:10px;padding:11px 14px;font-weight:650;cursor:pointer}.btn.primary{background:linear-gradient(120deg,#1675ed,#078dd5);border-color:#269dff}.btn:disabled{opacity:.45;cursor:not-allowed}.btn:hover:not(:disabled){filter:brightness(1.13)}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.metric{background:#0a1725;border:1px solid var(--line);border-radius:10px;padding:11px;min-width:0}.metric .label{font-size:11px;color:var(--muted)}.metric .value{font-size:clamp(16px,2vw,24px);font-weight:750;white-space:nowrap}.metric .sub{font-size:11px;color:var(--muted)}.blue{color:var(--blue)}.green{color:var(--green)}.red{color:var(--red)}.gold{color:var(--gold)}.purple{color:#b5a0ff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.fieldgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}.field input,.field select{width:100%;background:#06111d;border:1px solid #29435a;color:var(--text);border-radius:8px;padding:9px;outline:none}.field input:focus{border-color:var(--blue)}.field.full{grid-column:1/-1}.formula{background:#071320;border:1px solid #1c354b;border-radius:10px;padding:12px;overflow-wrap:anywhere}.equation{font-family:Cambria,Georgia,serif;font-size:17px;margin:7px 0;color:#e6f4ff}.small{font-size:12px}.scroll{max-height:220px;overflow:auto}.log{padding:8px 0;border-bottom:1px solid #183047;font-size:12px;color:var(--muted)}.pill{display:inline-block;border:1px solid #29455d;border-radius:100px;padding:3px 8px;color:var(--muted);font-size:11px}.foot{max-width:1500px;margin:0 auto;padding:0 16px 20px;color:var(--muted);font-size:12px}.warning{border-left:3px solid var(--gold);padding:9px 11px;background:#2b2315;color:#ffe2a4;border-radius:6px;font-size:12px}.visuals{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.visual{height:145px;background:#06111c;border:1px solid var(--line);border-radius:10px;display:grid;place-items:center;color:var(--muted);text-align:center;padding:10px}.bar{height:8px;background:#152c3e;border-radius:99px;overflow:hidden;margin-top:6px}.bar span{display:block;height:100%;width:0;background:var(--green)}
+@media(max-width:1000px){main{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}}
+@media(max-width:520px){header{padding:11px}.brand p{display:none}h1{font-size:16px}main{padding:9px;gap:10px}.panel{padding:10px}.grid{gap:6px}.metric{padding:9px}.metric .value{font-size:18px}.fieldgrid{grid-template-columns:1fr 1fr}.btn{flex:1;padding:10px 8px}.visuals{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">◇</div><div><h1>AR 3D Measurement Lab</h1><p>Object distance · dimensions · WebXR depth · multi-frame experiment</p></div></div>
+  <div class="status"><span id="statusDot" class="dot"></span><span id="statusText">Not connected<br>Depth sensing not checked</span></div>
+</header>
+<main>
+<section>
+  <div class="panel">
+    <h2>◉ Live AR / Depth Session <span class="pill" id="sessionPill">Idle</span></h2>
+    <div class="camera" id="cameraBox">
+      <canvas id="overlayCanvas"></canvas>
+      <div class="placeholder" id="placeholder"><div class="big">⌖</div><strong>Ready to start the measurement test</strong><p>Start an immersive AR session on a compatible Android browser. Aim at a rigid box and move slowly around it.</p><span class="pill">Camera permission is requested by the browser</span></div>
+      <div class="overlay" id="liveStats">FPS: —<br>Depth: waiting<br>Tracking: —</div>
+      <div class="overlay right">WebXR · Depth API</div>
+      <div class="bottomhint">For a complete 3D size, scan the front, sides and top when visible.</div>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="startBtn">▶ Start AR measurement</button>
+      <button class="btn" id="stopBtn" disabled>■ Stop</button>
+      <button class="btn" id="captureBtn" disabled>◎ Capture sample</button>
+      <button class="btn" id="resetBtn">↻ Reset</button>
+    </div>
+    <div class="warning" style="margin-top:10px">Compatibility note: WebXR immersive AR and depth sensing require browser/device support and a secure context (HTTPS or localhost). This page does not bypass device permissions or create sensor data when depth is unavailable.</div>
+  </div>
+  <div class="visuals">
+    <div class="panel"><h2>▦ Depth sample</h2><div class="visual" id="depthViz">Depth map preview appears when CPU depth data is available.</div><div class="small muted" id="depthSummary">No depth samples yet</div></div>
+    <div class="panel"><h2>⌗ Point cloud status</h2><div class="visual"><div><div style="font-size:32px;color:var(--blue)" id="pointCount">0</div><div>valid reconstructed points</div><div class="bar"><span id="coverageBar"></span></div><div class="small" id="coverageText">Valid depth coverage: —</div></div></div></div>
+  </div>
+  <div class="panel" style="margin-top:12px">
+    <h2>Data log</h2><div id="log" class="scroll"><div class="log">Waiting for session. Captured samples and measurement warnings will appear here.</div></div>
+    <div class="actions"><button class="btn" id="exportBtn">↓ Export CSV</button><button class="btn" id="clearLogBtn">Clear log</button></div>
+  </div>
+  <div class="panel" style="margin-top:12px">
+    <h2>☁ MongoDB cloud readings</h2>
+    <p class="small muted">Frontend GitHub Pages par rahega; readings save karne ke liye deployed backend API URL yahan paste karein. MongoDB credentials browser mein kabhi na daalein.</p>
+    <div class="field"><label>Backend API base URL (HTTPS)</label><input id="apiBase" type="url" placeholder="https://your-api-service.example.com"></div>
+    <div class="actions"><button class="btn primary" id="saveApiBtn">Save API URL</button><button class="btn" id="loadReadingsBtn">Load latest readings</button></div>
+    <div class="small" id="dbStatus" style="margin-top:8px;color:var(--muted)">Database API not configured.</div>
+    <div id="cloudReadings" class="scroll" style="margin-top:8px"><div class="log">Latest saved readings will appear here.</div></div>
+  </div>
+</section>
+<section>
+  <div class="panel">
+    <h2>▱ Measurement results</h2>
+    <div class="grid">
+      <div class="metric"><div class="label">Distance to selected point</div><div class="value blue" id="distanceVal">— m</div><div class="sub">straight-line range</div></div>
+      <div class="metric"><div class="label">Width estimate</div><div class="value green" id="widthVal">— m</div><div class="sub">selected point cloud</div></div>
+      <div class="metric"><div class="label">Height estimate</div><div class="value blue" id="heightVal">— m</div><div class="sub">selected point cloud</div></div>
+      <div class="metric"><div class="label">Object depth estimate</div><div class="value red" id="objectDepthVal">— m</div><div class="sub">front-to-back extent</div></div>
+      <div class="metric"><div class="label">Valid depth pixels</div><div class="value green" id="validVal">—</div><div class="sub" id="validSub">per captured frame</div></div>
+      <div class="metric"><div class="label">Captured frames</div><div class="value purple" id="framesVal">0</div><div class="sub">sample count</div></div>
+      <div class="metric"><div class="label">Stability (range)</div><div class="value gold" id="stabilityVal">—</div><div class="sub">across captured frames</div></div>
+      <div class="metric"><div class="label">Ground-truth error</div><div class="value" id="errorVal">—</div><div class="sub">requires tape distance</div></div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:12px">
+    <h2>◎ Selected point & mathematical inputs</h2>
+    <p class="small muted">Tap/click the image preview to choose an image coordinate when a camera image is available. Otherwise enter normalized image pixels below. Values update the mathematical calculation immediately.</p>
+    <div class="fieldgrid">
+      <div class="field"><label>Pixel u (px)</label><input id="u" type="number" value="640" step="1"></div>
+      <div class="field"><label>Pixel v (px)</label><input id="v" type="number" value="360" step="1"></div>
+      <div class="field"><label>Depth Z (metres)</label><input id="z" type="number" value="2" min="0.001" step="0.001"></div>
+      <div class="field"><label>Reference distance (m)</label><input id="gt" type="number" placeholder="Tape-measured distance" min="0" step="0.001"></div>
+      <div class="field"><label>Image width (px)</label><input id="imgW" type="number" value="1280" min="1"></div>
+      <div class="field"><label>Image height (px)</label><input id="imgH" type="number" value="720" min="1"></div>
+      <div class="field"><label>Focal length fx (px)</label><input id="fx" type="number" value="800" min="0.001" step="0.01"></div>
+      <div class="field"><label>Focal length fy (px)</label><input id="fy" type="number" value="800" min="0.001" step="0.01"></div>
+      <div class="field"><label>Principal point cx (px)</label><input id="cx" type="number" value="640" step="0.01"></div>
+      <div class="field"><label>Principal point cy (px)</label><input id="cy" type="number" value="360" step="0.01"></div>
+    </div>
+    <div class="actions"><button class="btn primary" id="calcBtn">Calculate from inputs</button><button class="btn" id="useCenterBtn">Use image center</button></div>
+    <div class="formula" style="margin-top:12px">
+      <div class="small muted">Calculated 3D coordinates (camera frame)</div>
+      <div class="equation" id="xyzEq">X = — m · Y = — m · Z = — m</div>
+      <div class="small muted">Straight-line distance from optical centre</div>
+      <div class="equation" id="distEq">D = Z √[1 + ((u − cx)/fx)² + ((v − cy)/fy)²] = — m</div>
+      <div class="small muted">Range error vs. reference</div><div class="equation" id="errorEq">Enter a tape-measured reference distance.</div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:12px">
+    <h2>Camera intrinsics & depth metadata</h2>
+    <div class="grid">
+      <div class="metric"><div class="label">fx (px)</div><div class="value" id="metaFx">—</div></div>
+      <div class="metric"><div class="label">fy (px)</div><div class="value" id="metaFy">—</div></div>
+      <div class="metric"><div class="label">Depth-map size</div><div class="value" id="metaDims">—</div></div>
+      <div class="metric"><div class="label">rawValueToMeters</div><div class="value" id="metaScale">—</div></div>
+    </div>
+    <p class="small muted">Intrinsics are inferred from the WebXR view projection matrix where possible. Confirm coordinate mapping and projection conventions on the target device before treating results as calibrated measurements.</p>
+  </div>
+  <div class="panel" style="margin-top:12px">
+    <h2>Mathematical model</h2>
+    <div class="formula">
+      <div class="small muted">Pixel + depth → 3D coordinates</div>
+      <div class="equation">X = (u − cx) Z / fx</div>
+      <div class="equation">Y = (v − cy) Z / fy</div>
+      <div class="equation">D = √(X² + Y² + Z²)</div>
+      <hr style="border:0;border-top:1px solid var(--line);margin:12px 0">
+      <div class="small muted">World transform (pose from AR)</div>
+      <div class="equation">P<sub>w</sub> = R P<sub>c</sub> + t</div>
+      <div class="small muted">Approximate frontal object-size cross-check</div>
+      <div class="equation">W ≈ w<sub>px</sub> Z / fx &nbsp; · &nbsp; H ≈ h<sub>px</sub> Z / fy</div>
+      <div class="small muted">3D bounding-box extent</div>
+      <div class="equation">L<sub>k</sub> = max(P<sub>j</sub> · e<sub>k</sub>) − min(P<sub>j</sub> · e<sub>k</sub>)</div>
+    </div>
+    <p class="small muted">This prototype calculates single-point distance and exposes depth metadata. Reliable full object dimensions need object segmentation and a calibrated multi-frame point-cloud fusion pipeline; it does not claim to reconstruct a complete 3D box automatically yet.</p>
+  </div>
+</section>
+</main>
+<div class="foot">Privacy: depth and pose are processed in this page; no server upload is implemented. Exported CSV is downloaded locally. Browser/device support and depth quality vary.</div>
+<script>
+(() => {
+ const $ = id => document.getElementById(id);
+ let session=null, refSpace=null, active=false, lastTime=0, fps=0, frames=[], logs=[], lastDepth=null, lastPose=null, lastDistance=null, validCount=0, totalCount=0, renderCanvas=$('overlayCanvas'), ctx=renderCanvas.getContext('2d');
+ const log = msg => { const t=new Date().toLocaleTimeString(); logs.unshift({time:t,msg}); $('log').innerHTML=logs.slice(0,80).map(x=>`<div class="log"><b>${x.time}</b> · ${escapeHtml(x.msg)}</div>`).join(''); };
+ function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+ function setStatus(on,text){$('statusDot').classList.toggle('on',on);$('statusText').innerHTML=text;}
+ function num(id){return Number($(id).value);}
+ function updateMath(){
+   const u=num('u'),v=num('v'),z=num('z'),fx=num('fx'),fy=num('fy'),cx=num('cx'),cy=num('cy');
+   if(![u,v,z,fx,fy,cx,cy].every(Number.isFinite)||z<=0||fx<=0||fy<=0){$('xyzEq').textContent='Enter valid pixel, depth and intrinsic values.';return;}
+   const X=(u-cx)*z/fx, Y=(v-cy)*z/fy, D=Math.hypot(X,Y,z);
+   $('xyzEq').textContent=`X = ${X.toFixed(4)} m · Y = ${Y.toFixed(4)} m · Z = ${z.toFixed(4)} m`;
+   $('distEq').textContent=`D = ${D.toFixed(4)} m`;
+   $('distanceVal').textContent=`${D.toFixed(3)} m`;
+   $('errorEq').textContent='Enter a tape-measured reference distance.';
+   $('errorVal').textContent='—';
+   const gt=num('gt');
+   if($('gt').value.trim()!==''&&Number.isFinite(gt)&&gt>0){
+     const e=Math.abs(D-gt),pct=e/gt*100;
+     $('errorEq').textContent=`Absolute error = ${e.toFixed(4)} m · Relative error = ${pct.toFixed(2)}%`;
+     $('errorVal').textContent=`${pct.toFixed(2)}%`;
+   }
+   lastDistance=D;
+ }
+ ['u','v','z','fx','fy','cx','cy','gt'].forEach(id=>$(id).addEventListener('input',updateMath));
+ $('calcBtn').addEventListener('click',()=>{updateMath();log('Calculated point distance from entered inputs.');});
+ $('useCenterBtn').addEventListener('click',()=>{$('u').value=String(num('imgW')/2);$('v').value=String(num('imgH')/2);updateMath();});
+ function resizeCanvas(){const r=$('cameraBox').getBoundingClientRect();renderCanvas.width=Math.max(1,Math.floor(r.width*devicePixelRatio));renderCanvas.height=Math.max(1,Math.floor(r.height*devicePixelRatio));}
+ window.addEventListener('resize',resizeCanvas);resizeCanvas();
+ function projectionIntrinsics(view,w,h){
+   const p=view.projectionMatrix;
+   if(!p||!w||!h)return;
+   // WebXR projection matrix is column-major. These are standard perspective-matrix intrinsics.
+   const fx=Math.abs(p[0])*w/2, fy=Math.abs(p[5])*h/2;
+   const cx=(1-p[8])*w/2, cy=(1+p[9])*h/2;
+   if(fx>0&&fy>0){$('fx').value=fx.toFixed(2);$('fy').value=fy.toFixed(2);$('cx').value=cx.toFixed(2);$('cy').value=cy.toFixed(2);$('metaFx').textContent=fx.toFixed(1);$('metaFy').textContent=fy.toFixed(1);}
+ }
+ function paintDepth(info){
+   if(!info || typeof info.getDepthInMeters!=='function')return;
+   const w=info.width,h=info.height; if(!w||!h)return;
+   const sampleW=Math.min(w,100),sampleH=Math.min(h,75);
+   let valid=0,total=0,values=[];
+   const pixels=[];
+   for(let yy=0;yy<sampleH;yy++){
+     for(let xx=0;xx<sampleW;xx++){
+       const x=Math.floor(xx*w/sampleW),y=Math.floor(yy*h/sampleH);
+       let d; try{d=info.getDepthInMeters(x,y);}catch(e){d=NaN;}
+       total++;
+       if(Number.isFinite(d)&&d>0&&d<20){valid++;values.push(d);pixels.push([xx,yy,d]);}
+     }
+   }
+   validCount=valid;totalCount=total;lastDepth={w,h,valid,total,values,pixels};
+   $('metaDims').textContent=`${w} × ${h}`;$('metaScale').textContent=Number(info.rawValueToMeters||0).toPrecision(4);
+   $('validVal').textContent=`${(valid/Math.max(total,1)*100).toFixed(1)}%`;$('validSub').textContent=`${valid} / ${total} sampled pixels`;
+   $('depthSummary').textContent=`Depth map ${w}×${h}; ${valid} valid samples in downsampled preview.`;
+   $('coverageBar').style.width=`${valid/Math.max(total,1)*100}%`;$('coverageText').textContent=`Valid sampled pixels: ${(valid/Math.max(total,1)*100).toFixed(1)}%`;
+   $('pointCount').textContent=valid.toLocaleString();
+   // Render a compact pseudo-colour depth preview, no RGB camera access required.
+   const c=document.createElement('canvas');c.width=sampleW;c.height=sampleH;const cc=c.getContext('2d'),im=cc.createImageData(sampleW,sampleH);
+   for(const [x,y,d] of pixels){const t=Math.max(0,Math.min(1,(d-0.2)/4));const i=(y*sampleW+x)*4;im.data[i]=Math.round(255*t);im.data[i+1]=Math.round(220*(1-Math.abs(t-.5)*2));im.data[i+2]=Math.round(255*(1-t));im.data[i+3]=255;}
+   cc.putImageData(im,0,0);$('depthViz').innerHTML='';const img=document.createElement('img');img.src=c.toDataURL();img.alt='Downsampled depth preview';img.style.cssText='width:100%;height:100%;object-fit:contain;image-rendering:pixelated';$('depthViz').appendChild(img);
+   if(values.length){
+     values.sort((a,b)=>a-b);const med=values[Math.floor(values.length/2)];
+     $('z').value=med.toFixed(3);$('u').value=String(Math.round(w/2));$('v').value=String(Math.round(h/2));
+     // Intrinsics are in view-image coordinates; adjust centre defaults only when actual mapping is known.
+     updateMath();
+   }
+ }
+ function drawMarker(){
+   resizeCanvas();ctx.clearRect(0,0,renderCanvas.width,renderCanvas.height);
+   ctx.fillStyle='#8ee7ff';ctx.strokeStyle='#8ee7ff';ctx.lineWidth=2*devicePixelRatio;
+   const x=renderCanvas.width/2,y=renderCanvas.height/2,r=10*devicePixelRatio;
+   ctx.beginPath();ctx.moveTo(x-r,y);ctx.lineTo(x+r,y);ctx.moveTo(x,y-r);ctx.lineTo(x,y+r);ctx.stroke();
+ }
+ async function start(){
+   if(!navigator.xr){log('WebXR is not available in this browser. Try a compatible Android browser over HTTPS.');alert('WebXR is not available. Use a compatible AR browser on HTTPS/localhost.');return;}
+   try{
+     session=await navigator.xr.requestSession('immersive-ar',{requiredFeatures:['local'],optionalFeatures:['depth-sensing'],depthSensing:{usagePreference:['cpu-optimized'],dataFormatPreference:['float32','luminance-alpha']}});
+     active=true;$('placeholder').style.display='none';$('startBtn').disabled=true;$('stopBtn').disabled=false;$('captureBtn').disabled=false;$('sessionPill').textContent='Active';setStatus(true,'AR session active<br>Checking depth sensing');log('Immersive AR session started.');
+     refSpace=await session.requestReferenceSpace('local');
+     session.addEventListener('end',()=>{active=false;session=null;$('startBtn').disabled=false;$('stopBtn').disabled=true;$('captureBtn').disabled=true;$('sessionPill').textContent='Idle';setStatus(false,'Session ended<br>Depth sensing unavailable');log('AR session ended.');});
+     session.requestAnimationFrame(onFrame);
+   }catch(e){log(`Could not start AR: ${e.message||e}`);alert(`Could not start AR: ${e.message||e}`);setStatus(false,'AR unavailable<br>Check browser/device support');}
+ }
+ function onFrame(time,frame){
+   if(!active||!session)return;
+   session.requestAnimationFrame(onFrame);
+   if(lastTime){const dt=time-lastTime;if(dt>0)fps=.9*fps+.1*(1000/dt);}lastTime=time;
+   let pose;try{pose=frame.getViewerPose(refSpace);}catch(e){}
+   let depthInfo=null,view=null;
+   if(pose&&pose.views&&pose.views.length){view=pose.views[0];try{depthInfo=frame.getDepthInformation(view);}catch(e){}}
+   if(depthInfo&&typeof depthInfo.getDepthInMeters==='function'){
+     setStatus(true,'AR Ready<br>Depth sensing active');$('liveStats').innerHTML=`FPS: ${fps.toFixed(0)}<br>Depth: Active<br>Tracking: ${pose?'Pose available':'—'}`;
+     paintDepth(depthInfo);
+     if(view)projectionIntrinsics(view,depthInfo.width,depthInfo.height);
+     $('metaDims').textContent=`${depthInfo.width} × ${depthInfo.height}`;
+   }else{
+     setStatus(!!pose,'AR running<br>Depth map not exposed');$('liveStats').innerHTML=`FPS: ${fps.toFixed(0)}<br>Depth: Unavailable<br>Tracking: ${pose?'Pose available':'—'}`;
+   }
+   drawMarker();
+ }
+ $('startBtn').addEventListener('click',start);
+ $('stopBtn').addEventListener('click',()=>{if(session)session.end();});
+ async function saveReadingToCloud(entry){
+   const base=($('apiBase').value||'').trim().replace(/\/$/,'');
+   if(!base){$('dbStatus').textContent='Not saved to cloud: add your deployed backend API URL first.';return;}
+   try{
+     $('dbStatus').textContent='Saving current reading…';
+     const res=await fetch(`${base}/api/readings`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(entry)});
+     const data=await res.json().catch(()=>({}));
+     if(!res.ok)throw new Error(data.error||`HTTP ${res.status}`);
+     $('dbStatus').textContent=`Saved to MongoDB · record ID ${data.id||'created'} · ${new Date().toLocaleTimeString()}`;
+     await loadCloudReadings();
+   }catch(err){$('dbStatus').textContent=`Cloud save failed: ${err.message}. Check API URL, backend status and CORS.`;}
+ }
+ async function loadCloudReadings(){
+   const base=($('apiBase').value||'').trim().replace(/\/$/,'');
+   if(!base){$('dbStatus').textContent='Enter and save the backend API URL first.';return;}
+   try{
+     $('dbStatus').textContent='Loading latest readings…';
+     const res=await fetch(`${base}/api/readings?limit=10`);const data=await res.json();
+     if(!res.ok)throw new Error(data.error||`HTTP ${res.status}`);
+     const rows=data.readings||[];
+     $('cloudReadings').innerHTML=rows.length?rows.map(r=>`<div class="log"><strong>${new Date(r.timestamp||r.createdAt).toLocaleString()}</strong> · Distance: ${Number.isFinite(r.distance)?r.distance.toFixed(3)+' m':'—'} · Depth Z: ${Number.isFinite(r.z)?r.z.toFixed(3)+' m':'—'} · Valid depth: ${Number.isFinite(r.validDepthPercent)?r.validDepthPercent.toFixed(1)+'%':'—'}</div>`).join(''):'<div class="log">No readings saved yet.</div>';
+     $('dbStatus').textContent=`Connected to API · ${rows.length} recent reading(s) loaded.`;
+   }catch(err){$('dbStatus').textContent=`Could not load readings: ${err.message}.`; }
+ }
+ $('saveApiBtn').addEventListener('click',()=>{const v=$('apiBase').value.trim().replace(/\/$/,'');if(!/^https:\/\//i.test(v)){alert('Enter the deployed HTTPS backend URL, e.g. https://your-api.example.com');return;}try{localStorage.setItem('arMeasurementApiBase',v);}catch(e){}$('apiBase').value=v;$('dbStatus').textContent='API URL saved on this browser. Testing connection…';loadCloudReadings();});
+ $('loadReadingsBtn').addEventListener('click',loadCloudReadings);
+ try{$('apiBase').value=localStorage.getItem('arMeasurementApiBase')||'';}catch(e){}
+ $('captureBtn').addEventListener('click',async()=>{
+   updateMath();
+   const entry={timestamp:new Date().toISOString(),u:num('u'),v:num('v'),z:num('z'),fx:num('fx'),fy:num('fy'),cx:num('cx'),cy:num('cy'),distance:Number.isFinite(lastDistance)?lastDistance:null,validDepthPercent:totalCount?validCount/totalCount*100:null,depthWidth:lastDepth?.w||null,depthHeight:lastDepth?.h||null,referenceDistance:$('gt').value.trim()!==''?num('gt'):null,source:'webxr-ar-measurement-lab'};
+   frames.push(entry);$('framesVal').textContent=frames.length;log(`Captured sample #${frames.length}: depth ${entry.z.toFixed(3)} m, point distance ${Number.isFinite(entry.distance)?entry.distance.toFixed(3):'—'} m.`);
+   const ds=frames.map(f=>f.distance).filter(Number.isFinite);if(ds.length>1){const range=Math.max(...ds)-Math.min(...ds);$('stabilityVal').textContent=`±${(range/2).toFixed(3)} m`;}
+   await saveReadingToCloud(entry);
+ });
+ $('resetBtn').addEventListener('click',()=>{frames=[];logs=[];lastDepth=null;lastDistance=null;$('framesVal').textContent='0';$('distanceVal').textContent='— m';$('widthVal').textContent='— m';$('heightVal').textContent='— m';$('objectDepthVal').textContent='— m';$('validVal').textContent='—';$('stabilityVal').textContent='—';$('errorVal').textContent='—';$('pointCount').textContent='0';$('depthViz').textContent='Depth map preview appears when CPU depth data is available.';$('log').innerHTML='';log('Measurement data reset.');});
+ $('clearLogBtn').addEventListener('click',()=>{logs=[];$('log').innerHTML='';});
+ $('exportBtn').addEventListener('click',()=>{
+   if(!frames.length){alert('Capture at least one sample first.');return;}
+   const cols=Object.keys(frames[0]),csv=[cols.join(','),...frames.map(f=>cols.map(k=>JSON.stringify(f[k]??'')).join(','))].join('\n');
+   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='ar-measurement-samples.csv';a.click();URL.revokeObjectURL(a.href);
+ });
+ // Keep controls useful on desktop; actual WebXR session owns camera access.
+ $('cameraBox').addEventListener('click',e=>{
+   const r=$('cameraBox').getBoundingClientRect();const u=(e.clientX-r.left)/r.width*num('imgW'),v=(e.clientY-r.top)/r.height*num('imgH');
+   $('u').value=Math.round(u);$('v').value=Math.round(v);updateMath();
+ });
+ updateMath();log('Prototype loaded. Enter calibrated intrinsics and depth, or start a compatible WebXR AR session.');
+})();
+</script>
+</body>
+</html>
